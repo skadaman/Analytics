@@ -2,7 +2,7 @@
 """
 Created on Sun Dec 25 16:13:42 2016
 
-@author: Work
+@author: Sebastian Kadamany
 """
 
 import pandas as pd
@@ -49,7 +49,7 @@ plt.plot(hourlymean_10spin.index,hourlymean_10spin.Dollars, label='10Min Spin')
 plt.legend(loc=4)
 plt.title("Hourly Mean Price in U.S Dollars")
 plt.xlabel("Hours")
-plt.ylabel("U.S Dollars")
+plt.ylabel("U.S Dollars per MWh")
 plt.xticks([1,6,12,18,24])
 plt.tight_layout(h_pad=.25,w_pad=.75) 
 plt.savefig('/Users/Work/Desktop/Mex_Anci1.png', bbox_inches="tight", bpi=120)
@@ -61,7 +61,7 @@ plt.plot(hourlymean_suppnospin.index,hourlymean_suppnospin.Dollars, label="Suppl
 plt.legend(loc=2)
 plt.title("Hourly Mean Price in U.S Dollars")
 plt.set_xlabel("Hours")
-plt.set_ylabel("U.S Dollars")
+plt.set_ylabel("U.S Dollars per MWh")
 plt.xticks([1,6,12,18,24])
 plt.tight_layout(h_pad=.25,w_pad=.75) 
 plt.savefig('/Users/Work/Desktop/Mex_Anci2.png', bbox_inches="tight", bpi=120)
