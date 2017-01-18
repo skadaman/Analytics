@@ -26,11 +26,19 @@ filepath='/Users/Work/Desktop/NWE/Python_Scripts/Mexico/Full_Power.csv'
 Node1name=('03GDU-230')
 Node2name=('03GDU-230')
 output1='/Users/Work/Desktop/AverageGuadalajara_MonthHour.png'
+title1=''
+title2=''
+title3=''
+title4=''
+title5=''
+title6=''
 output2='/Users/Work/Desktop/AveragePotosi_MonthHour.png'
 output3='/Users/Work/Desktop/VolatilityGuadalajara_Monthly.png'
 output4='/Users/Work/Desktop/VolatilityPotosi_Monthly.png'
 output5='/Users/Work/Desktop/DAPricePotosi_Monthly.png'
 output6='/Users/Work/Desktop/DAPricePotosi_Monthly.png'
+
+
 raw_power=pd.read_csv(filepath,index_col=0)
 raw_power.info()
 raw_power.head()
@@ -111,7 +119,7 @@ ax9.set_xticks([])
 ax10.set_xticks([1,6,12,18,24])
 ax11.set_xticks([1,6,12,18,24])
 ax12.set_xticks([1,6,12,18,24])
-plt.suptitle("Gudalajara Node Avg. Price per MWh by Hour and Month", y=.4, fontsize=16)
+plt.suptitle("%s Node Avg. Price per MWh by Hour and Month", y=.4, fontsize=16) %title1
 ax4.set_ylabel('Average Price Day Ahead (USD)')
 ax11.set_xlabel("Daily Hours")
 plt.subplots_adjust(bottom=0.6,top=2.2)
@@ -171,9 +179,9 @@ ax9.set_xticks([])
 ax10.set_xticks([1,6,12,18,24])
 ax11.set_xticks([1,6,12,18,24])
 ax12.set_xticks([1,6,12,18,24])
-plt.suptitle("San Luis Node2 Node Avg. Price of Energy by Hour and Month", y=.4, fontsize=16)
+plt.suptitle("%s Node Avg. Price of Energy by Hour and Month", y=.4, fontsize=16) %title2
 ax4.set_ylabel('Average Price MWh Day Ahead (USD)')
-ax11.set_xlabel("Daily Hours")
+ax11.set_xlabel("Hours of the Day")
 plt.subplots_adjust(bottom=0.6,top=2.2)
 #output2
 plt.savefig(%r, bbox_inches="tight", bpi=120) %output2
@@ -199,7 +207,7 @@ plt.plot(x,m*x+b)
 plt.ylabel('Volatility (Standard Dev / Average)')
 plt.xlabel('Months 2016')
 plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12])
-plt.title('Volatility at Node1 Node')
+plt.title('Volatility at %s Node') %title3
 #output3
 plt.savefig(%r, bbox_inches="tight", bpi=120) %output3
 
@@ -210,7 +218,8 @@ plt.plot(x,m*x+b)
 plt.ylabel('Volatility (Standard Dev / Average)')
 plt.xlabel('Months 2016')
 plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12])
-plt.title('Volatility at San Luis Node2 Node')
+#title4
+plt.title('Volatility at %s Node') %title4
 #output4
 plt.savefig(%r, bbox_inches="tight", bpi=120) %output4
 
@@ -289,7 +298,8 @@ fig, ax=plt.subplots()
 ax.plot(Node1.index,Node1.Dollars,color='blue')
 fig.autofmt_xdate()
 plt.ylabel('Prices in Dollars')
-plt.title('DA Prices at Node1 Node')
+#title5
+plt.title('DA Prices at %s Node')%title5
 #output5
 plt.savefig(%r, bbox_inches="tight", bpi=120) %output5
 
@@ -298,7 +308,8 @@ fig, ax=plt.subplots()
 ax.plot(Node2.index,Node2.Dollars,color='g')
 fig.autofmt_xdate()
 plt.ylabel('Prices in Dollars')
-plt.title('DA Prices at San Luis Node2 Node')
+#title6
+plt.title('DA Prices at %s Node') %title6
 #output6
 plt.savefig(%r, bbox_inches="tight", bpi=120) %output6
 
