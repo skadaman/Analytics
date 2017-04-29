@@ -14,7 +14,7 @@ import pandas as pd
 raw=pd.read_csv(
 r"C:\Users\sebastian\Desktop\Inputs\BaseDashboard.csv", 
 header=10, usecols=[0,2,3,4,5,6,7,9],nrows=125
-)
+).
 #raw=pd.read_csv(
 #r"\\ascendanalytics.com\users\sxk94\Python\Sales\Inputs\BaseDash.csv", 
 #header=10, usecols=[0,2,3,4,5,6,7,9],nrows=125
@@ -73,16 +73,23 @@ raw2.index=raw2.Date
 del(raw2['Date'])
 for i in raw2:
     removechar(raw2,i)
+raw2['Date']=raw2.index
 #%%
-d3=ColumnDataSource(data=raw2)
+d3=ColumnDataSource(raw2)
 plot3=figure()
-plot3.line(x=raw2.index,y='AvgUnhedged',source=d3, color='dark blue',
-legend='Unhedged Mean')
-plot3.diamond(x=raw2.index,y='P5Unhedged',source=d3, color='yellow',
-legend='Unhedged P5')
-plot3.square(x=raw2.index,y='P95Unhedged',source=d3, color='yellow',
-legend='Unhedged P95')
+plot3.line(x='Date',y='AvgUnhedged',source=d3, color='darkblue',
+legend='Unhedged Mean', line_width=3)
+plot3.line(x='Date',y='P5Unhedged',source=d3, color='darkblue',
+legend='Unhedged P5', line_dash='dashed')
+plot3.line(x='Date',y='P95Unhedged',source=d3, color='darkblue',
+legend='Unhedged P95', line_dash='dashed')
+
+plot3.line(x='Date',y='P5Hedged',source=d3, color='red',
+legend='Unhedged P5', line_dash='dashed')
+plot3.line(x='Date',y='P95Hedged',source=d3, color='red',
+legend='Unhedged P95', line_dash='dashed')
 layout2=column(layout1,plot3)
+
 
 output_file(r"C:\Users\sebastian\Desktop\Outputs\Sales_4.html")
 show(layout2)
