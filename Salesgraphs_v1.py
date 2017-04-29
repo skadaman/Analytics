@@ -12,9 +12,13 @@ reuse.
 import pandas as pd
 
 raw=pd.read_csv(
-r"\\ascendanalytics.com\users\sxk94\Python\Sales\Inputs\BaseDash.csv", 
+r"C:\Users\sebastian\Desktop\Inputs\BaseDashboard.csv", 
 header=10, usecols=[0,2,3,4,5,6,7,9],nrows=125
 )
+#raw=pd.read_csv(
+#r"\\ascendanalytics.com\users\sxk94\Python\Sales\Inputs\BaseDash.csv", 
+#header=10, usecols=[0,2,3,4,5,6,7,9],nrows=125
+#)
 
 def removechar(df,col):
     df[col]=df[col].apply(lambda x: str(x))
@@ -27,16 +31,8 @@ for i in raw:
     removechar(raw,i)
 #%%
 import numpy as np
-raw['Mdev']=raw.Market.apply(lambda x: (x/np.mean(raw.Market)-1))
-raw['PGMdev']=raw.ix[:,1].apply(lambda x:(
-x/np.mean(raw.ix[:,1])-1))
-raw['PGMdev_med']=raw.ix[:,1].apply(lambda x:(
-x/np.median(raw.ix[:,1])-1)
-)
-raw['HP']=np.sum(raw.ix[:,1],raw.ix[:,2])
-raw['HP_dev']=raw.HP.apply(lambda x:(
-x/np.mean(raw.HP)-1))
-t1,t2=np.histogram(raw.PGMdev_med,
+raw['HP']=raw.ix[:,1]+raw.ix[:,2]
+t1,t2=np.histogram(raw.ix[:,1],
                       bins='scott')
 
 
@@ -47,24 +43,22 @@ from bokeh.models import NumeralTickFormatter, ColumnDataSource
 from bokeh.plotting import figure
 from bokeh.io import output_file, show
 
-d1= ColumnDataSource( data={'x':raw.Mdev,'y':raw.PGMdev})
+d1= ColumnDataSource( data={'x':raw.Market,'y':raw.ix[:,1]})
 plot1=figure()
 plot1.circle(x='x',y='y', source=d1, color='blue')
-plot1.yaxis.axis_label='Portfolio Gross Margin (% Deviation from Average)'
-plot1.yaxis.formatter=NumeralTickFormatter(format='0%')
-plot1.xaxis.formatter=NumeralTickFormatter(format='0%')
-plot1.xaxis.axis_label="Simulated Power Price (%Deviation from Exp)"
+plot1.yaxis.axis_label='Portfolio Gross Margin'
+plot1.xaxis.axis_label="Simulated Power Price"
+plot1.yaxis.formatter=NumeralTickFormatter(format='$0a')
 
 plot2=figure()
 d2= ColumnDataSource( data={'x':t2,'y':t1})
 plot2.line(x='x',y='y', source=d2)
 plot2.yaxis.axis_label='Probabilty'
-#plot2.yaxis.formatter=NumeralTickFormatter(format='0%')
-plot2.xaxis.formatter=NumeralTickFormatter(format='0%')
-plot2.xaxis.axis_label="Portfolio Gross Margin (% Deviation from Median))"
-
+plot2.xaxis.axis_label="Portfolio Gross Margin"
+plot2.xaxis.formatter=NumeralTickFormatter(format='$0a')
 layout1=row(plot1, plot2)
-output_file(
-r"\\ascendanalytics.com\users\sxk94\Python\Sales\Outputs\Sales_1.html"
-)
+#output_file(
+#r"\\ascendanalytics.com\users\sxk94\Python\Sales\Outputs\Sales_1.html"
+#)
+output_file(r"C:\Users\sebastian\Desktop\Outputs\Sales_2.html")
 show(layout1)
