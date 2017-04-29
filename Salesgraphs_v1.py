@@ -62,5 +62,27 @@ layout1=row(plot1, plot2)
 #output_file(
 #r"\\ascendanalytics.com\users\sxk94\Python\Sales\Outputs\Sales_1.html"
 #)
-output_file(r"C:\Users\sebastian\Desktop\Outputs\Sales_3.html")
-show(layout1)
+
+#%%
+raw2=pd.read_csv(r"C:\Users\sebastian\Desktop\Inputs\BaseDashboard.csv", 
+header=195, usecols=[18,19,20,21,22,23,24],nrows=43
+)
+raw2.columns=['Date','AvgUnhedged','P5Unhedged','P95Unhedged','AvgHedged', 'P5Hedged','P95Hedged']
+raw2['Date']=pd.to_datetime(raw2.Date)
+raw2.index=raw2.Date
+del(raw2['Date'])
+for i in raw2:
+    removechar(raw2,i)
+#%%
+d3=ColumnDataSource(data=raw2)
+plot3=figure()
+plot3.line(x=raw2.index,y='AvgUnhedged',source=d3, color='dark blue',
+legend='Unhedged Mean')
+plot3.diamond(x=raw2.index,y='P5Unhedged',source=d3, color='yellow',
+legend='Unhedged P5')
+plot3.square(x=raw2.index,y='P95Unhedged',source=d3, color='yellow',
+legend='Unhedged P95')
+layout2=column(layout1,plot3)
+
+output_file(r"C:\Users\sebastian\Desktop\Outputs\Sales_4.html")
+show(layout2)
