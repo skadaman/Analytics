@@ -39,7 +39,7 @@ h1,h2=np.histogram(raw.HP, bins='scott')
 
 #%%
 from bokeh.layouts import row,column,gridplot
-from bokeh.models import NumeralTickFormatter, ColumnDataSource
+from bokeh.models import NumeralTickFormatter,ColumnDataSource,DatetimeTickFormatter
 from bokeh.plotting import figure
 from bokeh.io import output_file, show
 
@@ -88,6 +88,10 @@ plot3.line(x='Date',y='P5Hedged',source=d3, color='red',
 legend='Unhedged P5', line_dash='dashed')
 plot3.line(x='Date',y='P95Hedged',source=d3, color='red',
 legend='Unhedged P95', line_dash='dashed')
+plot3.xaxis.axis_label="Date"
+plot3.yaxis.axis_label="Gross Margin"
+plot3.yaxis.formatter=NumeralTickFormatter(format='$0a')
+plot3.xaxis.formatter=DatetimeTickFormatter(format={years:"%Y-%m",months:"%Y-%m"})
 layout2=column(layout1,plot3)
 
 
