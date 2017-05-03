@@ -14,7 +14,7 @@ import pandas as pd
 raw=pd.read_csv(
 r"C:\Users\sebastian\Desktop\Inputs\BaseDashboard.csv", 
 header=10, usecols=[0,2,3,4,5,6,7,9],nrows=125
-).
+)
 #raw=pd.read_csv(
 #r"\\ascendanalytics.com\users\sxk94\Python\Sales\Inputs\BaseDash.csv", 
 #header=10, usecols=[0,2,3,4,5,6,7,9],nrows=125
@@ -38,7 +38,7 @@ h1,h2=np.histogram(raw.HP, bins='scott')
 
 
 #%%
-from bokeh.layouts import row,column,gridplot
+from bokeh.layouts import row,column
 from bokeh.models import NumeralTickFormatter,ColumnDataSource,DatetimeTickFormatter
 from bokeh.plotting import figure
 from bokeh.io import output_file, show
@@ -58,6 +58,7 @@ plot2.line(x='x',y='y2', source=d2, color= 'green',legend='Hedged Portfolio')
 plot2.yaxis.axis_label='Probabilty'
 plot2.xaxis.axis_label="Portfolio Gross Margin"
 plot2.xaxis.formatter=NumeralTickFormatter(format='$0a')
+
 layout1=row(plot1, plot2)
 #output_file(
 #r"\\ascendanalytics.com\users\sxk94\Python\Sales\Outputs\Sales_1.html"
@@ -77,23 +78,34 @@ raw2['Date']=raw2.index
 #%%
 d3=ColumnDataSource(raw2)
 plot3=figure()
-plot3.line(x='Date',y='AvgUnhedged',source=d3, color='darkblue',
+plot3.line(x='Date',y='AvgUnhedged',source=d3, color='blue',
 legend='Unhedged Mean', line_width=3)
-plot3.line(x='Date',y='P5Unhedged',source=d3, color='darkblue',
+plot3.line(x='Date',y='P5Unhedged',source=d3, color='blue',
 legend='Unhedged P5', line_dash='dashed')
-plot3.line(x='Date',y='P95Unhedged',source=d3, color='darkblue',
+plot3.line(x='Date',y='P95Unhedged',source=d3, color='blue',
 legend='Unhedged P95', line_dash='dashed')
 
-plot3.line(x='Date',y='P5Hedged',source=d3, color='red',
-legend='Unhedged P5', line_dash='dashed')
-plot3.line(x='Date',y='P95Hedged',source=d3, color='red',
-legend='Unhedged P95', line_dash='dashed')
+plot3.line(x='Date',y='P5Hedged',source=d3, color='green',
+legend='hedged P5', line_dash='dashed')
+plot3.line(x='Date',y='P95Hedged',source=d3, color='green',
+legend='hedged P95', line_dash='dashed')
+
 plot3.xaxis.axis_label="Date"
 plot3.yaxis.axis_label="Gross Margin"
 plot3.yaxis.formatter=NumeralTickFormatter(format='$0a')
-plot3.xaxis.formatter=DatetimeTickFormatter(format={years:"%Y-%m",months:"%Y-%m"})
-layout2=column(layout1,plot3)
+plot3.xaxis.formatter=DatetimeTickFormatter(years=["%Y-%b"],months=["%Y-%b"])
+plot3.legend.location='top_left'
+logo=figure(x_range=(0,1),y_range=(0,1))
+logo.image_url(url=[r"C:\Users\sebastian\py\Py1\Logo.JPG"],x=.05,y=.85,h=.7,w=.9)
+logo.xaxis.visible=False
+logo.yaxis.visible=False
+logo.toolbar.logo=None
+logo.toolbar_location=None
+logo.xgrid.grid_line_color=None
+logo.ygrid.grid_line_color=None
+bottom=row(plot3,logo)
+layout2=column(layout1,bottom)
 
 
-output_file(r"C:\Users\sebastian\Desktop\Outputs\Sales_4.html")
+output_file(r"Outputs\Sales_4.html")
 show(layout2)
