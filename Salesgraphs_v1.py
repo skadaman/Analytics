@@ -28,6 +28,7 @@ x.replace('$','').replace(',','').replace('(','').replace(')','').strip())
 
         
 for i in raw:
+    
     removechar(raw,i)
 #%%
 import numpy as np
@@ -43,18 +44,37 @@ from bokeh.models import NumeralTickFormatter,ColumnDataSource,DatetimeTickForma
 from bokeh.plotting import figure
 from bokeh.io import output_file, show
 
-d1= ColumnDataSource( data={'x1':raw.Market,'y2':raw.HP,'y':raw.ix[:,1]})
+d1= ColumnDataSource( data={'x1':raw.Market,
+                            'y2':raw.HP,
+                            'y':raw.ix[:,1]})
 plot1=figure()
-plot1.circle(x='x1',y='y', source=d1, color='blue', legend='Unhedged Portfolio')
-plot1.square(x='x1',y='y2', source=d1, color='green', legend='Hedged Portfolio')
+plot1.circle(x='x1',y='y',
+             source=d1, 
+             color='steelblue',
+             fill_alpha=0.5,
+             size=8,
+             legend='Unhedged Portfolio')
+plot1.square(x='x1',
+             y='y2', 
+             source=d1,
+             color='orange',
+             fill_alpha=0.5,
+             size=8,
+             legend='Hedged Portfolio')
 plot1.yaxis.axis_label='Portfolio Gross Margin'
 plot1.xaxis.axis_label="Simulated Power Price"
 plot1.yaxis.formatter=NumeralTickFormatter(format='$0a')
 
 plot2=figure()
 d2= ColumnDataSource( data={'x':h2,'y':t1,'y2':h1})
-plot2.line(x='x',y='y', source=d2, color='blue',legend='Unhedged Portfolio')
-plot2.line(x='x',y='y2', source=d2, color= 'green',legend='Hedged Portfolio')
+plot2.line(x='x',y='y', 
+           source=d2, 
+           color='steelblue',
+           legend='Unhedged Portfolio')
+plot2.line(x='x',y='y2',
+           source=d2, 
+           color='orange',
+           legend='Hedged Portfolio')
 plot2.yaxis.axis_label='Probabilty'
 plot2.xaxis.axis_label="Portfolio Gross Margin"
 plot2.xaxis.formatter=NumeralTickFormatter(format='$0a')
@@ -78,25 +98,42 @@ raw2['Date']=raw2.index
 #%%
 d3=ColumnDataSource(raw2)
 plot3=figure()
-plot3.line(x='Date',y='AvgUnhedged',source=d3, color='blue',
-legend='Unhedged Mean', line_width=3)
-plot3.line(x='Date',y='P5Unhedged',source=d3, color='blue',
-legend='Unhedged P5', line_dash='dashed')
-plot3.line(x='Date',y='P95Unhedged',source=d3, color='blue',
-legend='Unhedged P95', line_dash='dashed')
 
-plot3.line(x='Date',y='P5Hedged',source=d3, color='green',
-legend='hedged P5', line_dash='dashed')
-plot3.line(x='Date',y='P95Hedged',source=d3, color='green',
-legend='hedged P95', line_dash='dashed')
-
+plot3.line(x='Date',y='P5Unhedged',
+           source=d3, 
+           color='steelblue',
+           legend='Unhedged P5', 
+           line_dash='dashed')
+plot3.line(x='Date',y='P95Unhedged',
+           source=d3, 
+           color='steelblue',
+           legend='Unhedged P95',
+           line_dash='dashed')
+plot3.line(x='Date',y='P5Hedged',
+           source=d3, color='orange',
+           legend='hedged P5', 
+           line_dash='dashed')
+plot3.line(x='Date',y='P95Hedged',
+           source=d3, 
+           color='orange',
+           legend='hedged P95', 
+           line_dash='dashed')
+plot3.line(x='Date',y='AvgUnhedged',
+           source=d3,
+           color='steelblue',
+           legend='Unhedged Mean',
+           line_width=2)
 plot3.xaxis.axis_label="Date"
 plot3.yaxis.axis_label="Gross Margin"
 plot3.yaxis.formatter=NumeralTickFormatter(format='$0a')
-plot3.xaxis.formatter=DatetimeTickFormatter(years=["%Y-%b"],months=["%Y-%b"])
+plot3.xaxis.formatter=DatetimeTickFormatter(years=["%Y-%b"],
+                                            months=["%Y-%b"])
 plot3.legend.location='top_left'
-logo=figure(x_range=(0,1),y_range=(0,1))
-logo.image_url(url=[r"C:\Users\sebastian\py\Py1\Logo.JPG"],x=.05,y=.85,h=.7,w=.9)
+logo=figure(x_range=(0,1),
+            y_range=(0,1))
+logo.image_url(url=[r"C:\Users\sebastian\py\Py1\Logo.JPG"],
+               x=.05,y=.85,
+               h=.7,w=.9)
 logo.xaxis.visible=False
 logo.yaxis.visible=False
 logo.toolbar.logo=None
