@@ -1,0 +1,94 @@
+'''Created by Sebastian Kadamany for conference graphs
+10/03/2017
+This script looks to create plots for Net load vs heat rate.
+Net load vs elect price.
+'''
+
+###Import and Clean Data Starting with Gas files###
+
+import pandas as pd
+import glob
+
+GasInfile=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\pgedailyprices.csv"
+
+Raw_G=pd.read_csv(GasInfile,usecols=[2,4],header=0 )
+Raw_G['DELIVERYDATE']=pd.to_datetime(Raw_G['DELIVERYDATE'], format='%d%b%Y:%H:%M:%S')
+
+## Power Files ##
+P1Infile=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\power15.csv"
+P2Infile=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\power16.csv"
+P3infile=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\power17.csv"
+p4infile=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\power17b.csv"
+#appends all files
+PFiles=[P1Infile,P2Infile,P3infile,p4infile]
+df_list=[]
+for f in PFiles:
+    df=pd.read_csv(f,usecols=[2,3,14])
+    df_list.append(df)
+    Raw_Power=pd.concat(df_list)
+Raw_Power['HOUR']=Raw_Power['OPR_HR'].apply(lambda x: '0'+str(x-1) if len(str(x))<2 else str(x-1)) # the "-1"
+# is due to the 1 to 24 format of the data subtracting 1 gives us 1 to 23, needed to reduce errors.
+Raw_Power['DELIVERYDATE']=Raw_Power['OPR_DT'].apply(lambda x:x.replace("-",""))+":"+ Raw_Power['HOUR']
+Raw_Power['DELIVERYDATE']=pd.to_datetime(Raw_Power['DELIVERYDATE'],format='%Y%m%d:%H', errors='coerce')
+nulls=Raw_Power[Raw_Power['DELIVERYDATE'].isnull()]
+# There are some hour "25" in the data. I am droping those since the cant be formated. Only a few obs.
+Power=Raw_Power.dropna()
+del Power['OPR_DT']
+del Power['OPR_HR']
+#Join Gas and Power Data set and create HeatRateVariable
+PandG=Power.set_index('DELIVERYDATE').join(Raw_G.set_index('DELIVERYDATE'))
+PandG=PandG.fillna(method='ffill') # Gas price is daily and power price is hourly so we fill in the hourly gas price
+# with the gas price for that day. Its a flat resampling.
+PandG.drop_duplicates()
+
+PandG['HEATRATE']=PandG['MW']/PandG['VAL']
+PandG=PandG.dropna() # since the gas file and power file dont match we just keep the overlaps.
+
+## Load data import and clean ##
+
+# First historic load then renewables to get Net load#
+LInfile1=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\HistoricalEMSHourlyLoad_2014-2016.xlsx"
+LInfile2=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\HistoricalEMSHourlyLoad-April2017.xlsx"
+LInfile3=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\HistoricalEMSHourlyLoad-February2017.xlsx"
+LInfile4=r"\\backup02\Output\JSL\HistoricalEMSHourlyLoad-March2017.xlsx"
+LInfile5=r"\\backup02\Output\JSL\HistoricalEMSHourlyLoad-May2017.xlsx"
+
+LFiles=[LInfile1,LInfile2,LInfile3,LInfile4,LInfile5]
+df_list=[]
+for f in LFiles:
+    df=pd.read_excel(f,header=0,parse_cols="A,H")
+    df_list.append(df)
+    Raw_Load=pd.concat(df_list)
+Raw_Load.columns=['DELIVERYDATE','LOAD']
+Raw_Load['HOUR']=Raw_Load.DELIVERYDATE.apply(lambda x: x.hour)
+
+#NowRenewables#
+files= glob.iglob(r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\renewable_gen\*v5*")
+df_list = []
+for filename in files:
+    df=pd.read_csv(filename, header=0, usecols=[0,1,2,6])
+    df_list.append(df)
+    Raw_Rgen=pd.concat(df_list)
+Raw_Rgen=Raw_Rgen[Raw_Rgen["MARKET_RUN_ID"]=="RTD"]
+Raw_Rgen['HOUR']=Raw_Rgen['OPR_HR'].apply(lambda x: '0'+str(x-1) if len(str(x))<2 else str(x-1)) # the "-1"
+# is due to the 1 to 24 format of the data subtracting 1 gives us 1 to 23, needed to reduce errors.
+Raw_Rgen['DELIVERYDATE']=Raw_Rgen['OPR_DT'].apply(lambda x:x.replace("-",""))+":"+ Raw_Rgen['HOUR']
+Raw_Rgen['DELIVERYDATE']=pd.to_datetime(Raw_Rgen['DELIVERYDATE'],format='%Y%m%d:%H', errors='coerce')
+nulls=Raw_Rgen[Raw_Rgen['DELIVERYDATE'].isnull()]
+# There are some hour "25" in the data. I am droping those since the cant be formated. Only a few obs.
+Rgen=Raw_Rgen.dropna()
+del Rgen['OPR_DT']
+del Rgen['OPR_HR']
+del Rgen['MARKET_RUN_ID']
+#join load and renewable gen
+LandR=Raw_Load.set_index('DELIVERYDATE').join(Rgen.set_index('DELIVERYDATE'))
+LandR=LandR.dropna() #Only keeps data where timeperiods between sets overlap
+LandR['NET']=LandR['LOAD']-LandR['VALUE']
+
+
+#Now Join all data sets
+All=PandG.join(LandR)
+All=All.dropna()
+
+#All.to_csv(r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\AllData.csv")
+
