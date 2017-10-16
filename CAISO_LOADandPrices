@@ -52,15 +52,16 @@ LInfile2=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\HistoricalEMSHou
 LInfile3=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\HistoricalEMSHourlyLoad-February2017.xlsx"
 LInfile4=r"\\backup02\Output\JSL\HistoricalEMSHourlyLoad-March2017.xlsx"
 LInfile5=r"\\backup02\Output\JSL\HistoricalEMSHourlyLoad-May2017.xlsx"
+LInfile6=r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\HistoricalEMSHourlyLoad-January2017.xlsx"
 
-LFiles=[LInfile1,LInfile2,LInfile3,LInfile4,LInfile5]
+LFiles=[LInfile1,LInfile2,LInfile3,LInfile4,LInfile5,LInfile6]
 df_list=[]
 for f in LFiles:
     df=pd.read_excel(f,header=0,parse_cols="A,H")
     df_list.append(df)
     Raw_Load=pd.concat(df_list)
 Raw_Load.columns=['DELIVERYDATE','LOAD']
-Raw_Load['HOUR']=Raw_Load.DELIVERYDATE.apply(lambda x: x.hour)
+
 
 #NowRenewables#
 files= glob.iglob(r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\renewable_gen\*v5*")
@@ -80,6 +81,7 @@ Rgen=Raw_Rgen.dropna()
 del Rgen['OPR_DT']
 del Rgen['OPR_HR']
 del Rgen['MARKET_RUN_ID']
+del Rgen['HOUR']
 #join load and renewable gen
 LandR=Raw_Load.set_index('DELIVERYDATE').join(Rgen.set_index('DELIVERYDATE'))
 LandR=LandR.dropna() #Only keeps data where timeperiods between sets overlap
@@ -90,5 +92,19 @@ LandR['NET']=LandR['LOAD']-LandR['VALUE']
 All=PandG.join(LandR)
 All=All.dropna()
 
-#All.to_csv(r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\AllData.csv")
+#All.to_csv(r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\AllData2.csv")
+All=pd.DataFrame(All.to_records())
+All['DAY']=All['DELIVERYDATE'].apply(lambda x: x.day)
+All['YEAR']=All['DELIVERYDATE'].apply(lambda x: x.year)
+All['MONTH']=All['DELIVERYDATE'].apply(lambda x: x.month)
+All.columns=("DATETIME","POWER","HOUR","GAS","HEATRATE","LOAD","RGEN","NETL","DAY","YEAR","MONTH")
+All_ymd_NHR=All[['YEAR','MONTH','DAY','HEATRATE','NETL','LOAD']].groupby(['YEAR','MONTH','DAY']).agg({'HEATRATE':['mean','std'],
+                                                                                                      'NETL':['mean','std'],
+                                                                                                      'LOAD':['mean','std']})
+All_ymd_NHR=pd.DataFrame(All_ymd_NHR.to_records())
+All_ymd_NHR.columns=('YEAR','MONTH','DAY','NETL_MEAN','NETL_STD','LOAD_MEAN','LOAD_STD','HR_MEAN','HR_STD')
+All_ymd_NHR['HRVOL']=All_ymd_NHR['HR_STD']/All_ymd_NHR['HR_MEAN']
+All_ymd_NHR['NETLVOL']=All_ymd_NHR['NETL_STD']/All_ymd_NHR['NETL_MEAN']
+All_ymd_NHR['LOADVOL']=All_ymd_NHR['LOAD_STD']/All_ymd_NHR['LOAD_MEAN']
 
+All_ymd_NHR.to_csv(r"\\ascendanalytics.com\users\sxk94\AA\Conference\Data\DailyVol.csv")
