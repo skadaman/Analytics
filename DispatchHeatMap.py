@@ -12,7 +12,14 @@ raw=pd.read_excel(infile, header=0,)
 raw['Month']=raw.Date.apply(lambda x: x.month)
 raw['Year']=raw.Date.apply(lambda x: x.year)
 del(raw['Sum'])
+raw['Unit']=raw['RSR'].apply(lambda x: x[0:14])
 
+netgen=raw[['Date',1,2,3,4,5,6,7,8,9,10,
+                    11,12,13,14,15,16,17,18,19,
+                    20,21,22,23,24,
+                    'Year','Month','Unit']].groupby([
+                    'Date','Year','Month','Unit']).agg('sum')
+netgen=pd.DataFrame(netgen.to_records())
 
 ''' Loop that iterates over the months and years to create heatmap graphic 
 for every unit month and year, pumping is negative so that will be included'''
@@ -20,24 +27,21 @@ for every unit month and year, pumping is negative so that will be included'''
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
 
-#gen=raw[raw['GEN/PUMP']=='GEN']
+
 import matplotlib.pyplot as plt
 
 
 
-combinations = raw.loc[:,['Month', 'Year', 'RSR']].drop_duplicates()
+combinations = netgen.loc[:,['Month', 'Year', 'Unit']].drop_duplicates()
 for i,row in combinations.iterrows():
     m = row['Month']
     y = row['Year']
-    g = row['RSR']
-#    g_my=M_Y[M_Y['RSR']==g]
-#    sub_mode=g_my[['Date',1,2,3,4,5,6,7,8,9,10,
-#                     11,12,13,14,15,16,17,18,19,
-#                     20,21,22,23,24]]
-    sub_mode = raw.loc[(raw['Month']==m)&(raw['Year']==y)&(raw['RSR']==g),
-                        ['Date',1,2,3,4,5,6,7,8,9,10,
-                    11,12,13,14,15,16,17,18,19,
-                    20,21,22,23,24]]
+    g = row['Unit']
+
+    sub_mode = netgen.loc[(netgen['Month']==m)&(netgen['Year']==y)&(netgen['Unit']==g),
+                        ['Date','1','2','3','4','5','6','7','8','9','10',
+                    '11','12','13','14','15','16','17','18','19',
+                    '20','21','22','23','24']]
     sub_mode=sub_mode.set_index('Date')
     fig = plt.figure()
     fig, ax = plt.subplots( figsize=(12.5,15))
@@ -52,7 +56,7 @@ for i,row in combinations.iterrows():
     ax.grid( which='major',color='w', linestyle='-', linewidth=2)
     ax.set_xlabel('Hour of the Day')
     ax.set_ylabel('Day in Month '+str(m)+'/'+str(y))
-    cbar=fig.colorbar(heatmap,ticks=[0,25,50,75,100,125,150,175,200,225,250],
+    cbar=fig.colorbar(heatmap,ticks=list(range(-300,300,25)),
                       orientation='horizontal')
     
 
